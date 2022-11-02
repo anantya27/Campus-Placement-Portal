@@ -1,7 +1,7 @@
 body{
     margin: 0;
     padding: 0;
-}
+} 
 
 #video-grid{
     display: flex;
@@ -10,7 +10,7 @@ body{
 
 video{
     height: 300px;
-    width: 400px;
+    width: 400px;   
     object-fit: cover;
 }
 
@@ -118,4 +118,4 @@ video{
 .unmute, .stop {
     color: #CC3B33;
 }
-
+ 

@@ -1,6 +1,9 @@
+//In this file all javascript for fronted is going to live 
+
+
 
 const socket=io('/')
-const videoGrid=document.getElementById('video-grid')
+const videoGrid=document.getElementById('video-grid');
 const myVideo=document.createElement('video');
 myVideo.muted=true;
 
@@ -11,53 +14,87 @@ var peer = new Peer(undefined,{
     port: '3030'
 });
 
-let myVideoStream
+let myVideoStream;
+
+// this will get video and audio output from chrome
+// getUserMedia is promise - either will succed if user gave access of cam and audio or wont if it
+// succeds control will go in .then() function
+
 navigator.mediaDevices.getUserMedia({
     video:true,
     audio:true
 }).then(stream => {
     myVideoStream=stream;
+    console.log("stream created");
     addVideoStream(myVideo,stream);
-    peer.on('call', call => {
-        call.answer(stream)
-        const video = document.createElement('video')
-        call.on('stream', userVideoStream => {
-          addVideoStream(video, userVideoStream)
-        })
-      })
     
-    socket.on('user-connected',(userId) =>{
-        connectToNewUser(userId,stream);
-    })
+    // peer.on('call', call => {
+    //     call.answer(stream)
+    //     const video = document.createElement('video')
+    //     call.on('stream', userVideoStream => {
+    //       addVideoStream(video, userVideoStream)
+    //     })
+      
+    // })
+    
+    // socket.on('user-connected',(userId) =>{
+    //     connectToNewUser(userId,stream);
+    // })
 })
 
-// socket.emit('join-room',ROOM_ID);
-
+//this will get executed first
 peer.on('open', id => {
+    console.log("0");
     // console.log(id);
     socket.emit('join-room', ROOM_ID, id)
 })
 
 
+peer.on('call', call => {
+  console.log("1");
+  call.answer(myVideoStream)
+  const video = document.createElement('video')
+  call.on('stream', userVideoStream => {
+    addVideoStream(video, userVideoStream)
+  })
+
+})
+
+socket.on('user-connected',(userId) =>{
+  connectToNewUser(userId,myVideoStream);
+})
+
+// socket.emit('join-room',ROOM_ID);
+
+// socket.on('user-connected',(userId) =>{
+//   connectToNewUser(userId,stream);
+// })
+
+
 
 const connectToNewUser = (userId,stream) => {
+    console.log("2");
+    console.log(userId);
     const call = peer.call(userId, stream)
     const video = document.createElement('video')
     call.on('stream', userVideoStream => {
+      //problem
       addVideoStream(video, userVideoStream)
     })
-    // call.on('close', () => {
-    //  video.remove()
-    // })
+    call.on('close', () => {
+     video.remove()
+    })
 
-    // peers[userId] = call
+    peers[userId] = call
 }
 
 const addVideoStream = (video,stream)=>{
+    console.log("stream added");
     video.srcObject=stream;
     video.addEventListener('loadedmetadata',()=>{
         video.play();
     })
+    
     videoGrid.append(video);
 }
 
@@ -97,7 +134,7 @@ const muteUnmute = () => {
   }
   
   const playStop = () => {
-    console.log('object')
+
     let enabled = myVideoStream.getVideoTracks()[0].enabled;
     if (enabled) {
       myVideoStream.getVideoTracks()[0].enabled = false;
