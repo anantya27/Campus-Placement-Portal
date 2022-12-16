@@ -22,7 +22,7 @@ let myVideoStream;
 
 navigator.mediaDevices.getUserMedia({
     video:true,
-    audio:true
+    audio:false
 }).then(stream => {
     myVideoStream=stream;
     console.log("stream created");
@@ -42,14 +42,14 @@ navigator.mediaDevices.getUserMedia({
     // })
 })
 
-//this will get executed first
+//this will get executed first as soon as someone joins room or we can say when connection opens
 peer.on('open', id => {
     console.log("0");
     // console.log(id);
     socket.emit('join-room', ROOM_ID, id)
 })
 
-
+//this is call acceptance by new user or connected user
 peer.on('call', call => {
   console.log("1");
   call.answer(myVideoStream)
@@ -57,7 +57,6 @@ peer.on('call', call => {
   call.on('stream', userVideoStream => {
     addVideoStream(video, userVideoStream)
   })
-
 })
 
 socket.on('user-connected',(userId) =>{
@@ -72,20 +71,20 @@ socket.on('user-connected',(userId) =>{
 
 
 
-const connectToNewUser = (userId,stream) => {
+const connectToNewUser = (userId,myVideoStream) => {
     console.log("2");
     console.log(userId);
-    const call = peer.call(userId, stream)
+    const call = peer.call(userId, myVideoStream)
     const video = document.createElement('video')
     call.on('stream', userVideoStream => {
       //problem
       addVideoStream(video, userVideoStream)
     })
-    call.on('close', () => {
-     video.remove()
-    })
+    // call.on('close', () => {
+    //  video.remove()
+    // })
 
-    peers[userId] = call
+    // peers[userId] = call
 }
 
 const addVideoStream = (video,stream)=>{
@@ -99,6 +98,7 @@ const addVideoStream = (video,stream)=>{
 }
 
 let text = $('input')
+
 $('html').keydown( (e)=>{
 
     if( e.which==13 && text.val().length!==0 ){

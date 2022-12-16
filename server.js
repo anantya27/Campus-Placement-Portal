@@ -30,37 +30,37 @@ app.get('/:room',(req,res)=>{
 
 io.on('connection', socket => {
 
-    // socket.on('join-room', (roomId,userId) => {
-    //     // console.log("joined room");
-    //     socket.join(roomId)
-    //     // if(socket.to(roomId).broadcast){
-    //     // console.log(socket.to(roomId));
-    //     socket.to(roomId).emit('user-connected',userId);
-    //     // // }
-        
-    //     // // messages
-    //     // socket.on('message', (message) => {
-    //     //     //send message to the same room
-    //     //     io.to(roomId).emit('createMessage', message);
-    //     // }); 
-        
-    // }); 
-
     socket.on('join-room', (roomId,userId) => {
         // console.log("joined room");
         socket.join(roomId)
         // if(socket.to(roomId).broadcast){
         // console.log(socket.to(roomId));
         socket.to(roomId).emit('user-connected',userId);
-        // }
+        // // }
         
-        // messages
+        // // messages
         socket.on('message', (message) => {
             //send message to the same room
             io.to(roomId).emit('createMessage', message);
         }); 
         
     }); 
+
+    // socket.on('join-room', (roomId,userId) => {
+    //     // console.log("joined room");
+    //     socket.join(roomId)
+    //     // if(socket.to(roomId).broadcast){
+    //     // console.log(socket.to(roomId));
+    //     socket.to(roomId).emit('user-connected',userId);
+    //     // }
+        
+    //     // messages
+    //     socket.on('message', (message) => {
+    //         //send message to the same room
+    //         io.to(roomId).emit('createMessage', message);
+    //     }); 
+        
+    // }); 
 
 })
 
